@@ -8,7 +8,7 @@ import com.meeple.lib.math.MathHelper;
 import com.meeple.lib.math.VPoint2D;
 import com.meeple.lib.math.VPoint3D;
 
-public class SquareList {
+public class SquareList implements Cloneable {
 	public class Square {
 		//INDEX from the linked arraylist of points
 		public int p1, p2, p3, p4;
@@ -18,7 +18,7 @@ public class SquareList {
 			pointList.add(p2);
 			pointList.add(p3);
 			pointList.add(p4);
-			
+
 			this.p1 = pointList.indexOf(p1);
 			this.p2 = pointList.indexOf(p2);
 			this.p3 = pointList.indexOf(p3);
@@ -40,10 +40,11 @@ public class SquareList {
 		public VPoint3D getP4() {
 			return pointList.get(p4);
 		}
+
 	}
 
 	//HashMap to so fast checks if we already have an element in the list 
-	private HashMap<VPoint2D, Double> hashmap = new HashMap<VPoint2D,Double>();
+	public HashMap<VPoint2D, Double> hashmap = new HashMap<VPoint2D, Double>();
 	public ArrayList<VPoint3D> pointList = new ArrayList<VPoint3D>() {
 		/**
 				* Overriding the add method so we sort as soon as added
@@ -57,7 +58,7 @@ public class SquareList {
 			* @return whether the point got added
 			*/
 		public boolean add(VPoint3D e) {
-			if(hashmap.put(new VPoint2D(e.x,e.y), e.z)==null) {
+			if (hashmap.put(new VPoint2D(e.x, e.y), e.z) == null) {
 				return super.add(e);
 			}
 			return false;
@@ -111,7 +112,30 @@ public class SquareList {
 	public void addSquare(Square s) {
 		squares.add(s);
 	}
+
 	public int size() {
 		return squares.size();
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	@Override
+	public Object clone() {
+
+		SquareList clone = new SquareList();
+		try {
+			clone.hashmap = (HashMap<VPoint2D, Double>) this.hashmap.clone();
+			clone.pointList = (ArrayList<VPoint3D>) this.pointList.clone();
+			clone.squares = (ArrayList<Square>) this.squares.clone();
+		} catch (Exception e) {
+			return null;
+		}
+		return clone;
+	}
+
+	public void addSquares(ArrayList<Square> squares) {
+		for (Square s : squares) {
+			addSquare(s);
+		}
+
 	}
 }

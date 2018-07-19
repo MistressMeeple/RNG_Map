@@ -246,7 +246,7 @@ public class Island {
 
 			}
 		}
-
+		Treetops.println("Finish island gen");
 		return this;
 	}
 
@@ -270,6 +270,20 @@ public class Island {
 	 */
 	public void setLocation(SPoint location) {
 		this.location = location;
+	}
+
+	/**
+	 * @return the map
+	 */
+	public Map<VPoint2D, Double> getMap() {
+		return map;
+	}
+
+	/**
+	 * @param map the map to set
+	 */
+	public void setMap(Map<VPoint2D, Double> map) {
+		this.map = map;
 	}
 
 	public BufferedImage print() {

@@ -1,23 +1,13 @@
 package com.meeple;
 
-import java.awt.Graphics;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.util.Random;
 
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-
 import com.meeple.main.generate.FractalLandscape;
-import com.meeple.main.generate.FractalLandscape2D;
+import com.meeple.main.generate.Landmass;
 
 public class Treetops {
 	//Main classes
-	BufferedImage image;
-	JLabel label;
 	static long start = System.currentTimeMillis();
 
 	public static void println(Object s) {
@@ -25,76 +15,25 @@ public class Treetops {
 	}
 
 	public Treetops() {
-
-		int w = 300, h = 300;
-		image = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-		JFrame frame = new JFrame("Test");
-		Random random = new Random(1);
-		
-
+		Random random = new Random(0);
 
 		println("Starting fractal");
-		FractalLandscape fl = new FractalLandscape(w, h,random, 7);
-		println("Starting fractal generate");
-		fl.generate();
-		println("finish fractal generate");
-		fl.print();
+		Landmass landmass = new Landmass(100, 100, random);
+		println("Fin");
 
-		
-		FractalLandscape2D fl2 = new FractalLandscape2D(w, 10, random);
-		fl2.generate();
-		image = (BufferedImage) fl2.print();
+		//		Viewer3D v3d = new Viewer3D(fl);
+	}
 
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setBounds(0, 0, 400, 400);
-		frame.setVisible(true);
-		frame.add(label = new JLabel(new ImageIcon(image)) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void paintComponent(Graphics g) {
-				super.paintComponent(g);
-				g.clearRect(0, 0, frame.getWidth(), frame.getHeight());
-				g.drawImage(image, 0, 0, null);
+	long test(int w, int h) {
+		long startA = System.currentTimeMillis();
+		double lWidth = 100, lHeight = 100;
+		FractalLandscape[][] landmass = new FractalLandscape[w][h];
+		for (int x = 0; x < w; x++) {
+			for (int y = 0; y < h; y++) {
+				landmass[x][y] = new FractalLandscape(lWidth * x, lHeight * y, lWidth, lHeight, new Random(), 4);
 			}
-
-		});
-		frame.addMouseListener(new MouseListener() {
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				fl2.generate();
-				image = (BufferedImage) fl2.print();
-				frame.repaint();
-
-			}
-		});
-		//js= new JuliaSet(zoom);
-
+		}
+		return (System.currentTimeMillis() - startA);
 	}
 
 	public static void main(String[] args) {
