@@ -3,8 +3,9 @@ package com.meeple;
 import java.text.DecimalFormat;
 import java.util.Random;
 
-import com.meeple.main.generate.FractalLandscape;
-import com.meeple.main.generate.Landmass;
+import com.meeple.lib.math.RPoint;
+import com.meeple.lib.math.VPoint2D;
+import com.meeple.main.generate.dugeon.Room;
 
 public class Treetops {
 	//Main classes
@@ -15,25 +16,15 @@ public class Treetops {
 	}
 
 	public Treetops() {
-		Random random = new Random(0);
+		Random random = new Random(1);
 
-		println("Starting fractal");
-		Landmass landmass = new Landmass(100, 100, random);
-		println("Fin");
-
-		//		Viewer3D v3d = new Viewer3D(fl);
-	}
-
-	long test(int w, int h) {
-		long startA = System.currentTimeMillis();
-		double lWidth = 100, lHeight = 100;
-		FractalLandscape[][] landmass = new FractalLandscape[w][h];
-		for (int x = 0; x < w; x++) {
-			for (int y = 0; y < h; y++) {
-				landmass[x][y] = new FractalLandscape(lWidth * x, lHeight * y, lWidth, lHeight, new Random(), 4);
-			}
-		}
-		return (System.currentTimeMillis() - startA);
+		VPoint2D point = new VPoint2D(0, 5);
+		println(new RPoint(point));
+		point = new VPoint2D(5, 0);
+		println(new RPoint(point));
+		point = new VPoint2D(5, 5);
+		println(new RPoint(point));
+		new Room(random).printImage("Room");
 	}
 
 	public static void main(String[] args) {

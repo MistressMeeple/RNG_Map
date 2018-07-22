@@ -181,7 +181,7 @@ public class Island {
 		for (int i = 0; i < points; i++) {
 			plist.add(new VPoint2D(MathHelper.getRandomIntBetween(random, offset, s - offset), MathHelper.getRandomIntBetween(random, offset, s - offset)));
 		}
-		MathHelper.rotationSort(plist, new VPoint2D(s / 2, s / 2));
+		VPoint2D.rotationSort(plist, new VPoint2D(s / 2, s / 2));
 
 		Polygon poly = new Polygon();
 		for (int i = 0; i < plist.size(); i++) {
