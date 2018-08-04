@@ -31,9 +31,9 @@ import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
 import com.meeple.lib.math.VPoint3D;
-import com.meeple.main.generate.FractalLandscape;
 import com.meeple.main.generate.fractal.SquareList;
 import com.meeple.main.generate.fractal.SquareList.Square;
+import com.meeple.main.generate.world.FractalLandscape;
 import com.sun.j3d.utils.behaviors.vp.OrbitBehavior;
 import com.sun.j3d.utils.image.TextureLoader;
 import com.sun.j3d.utils.universe.SimpleUniverse;
