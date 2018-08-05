@@ -8,25 +8,26 @@ import java.awt.image.BufferedImage;
 import java.util.Random;
 
 public class JuliaSet {
-	private final int maxIter = 300;
+	private final int maxIter = 20;
 	private final double zoom;
 	private double cY, cX;
 	private final Random r;
 
-	public JuliaSet(double zoom) {
-		this.zoom=zoom;
-		r = new Random();
-		cX = -0.7*(r.nextDouble()-0.5);
-		cY = 0.27015*(r.nextDouble()-0.5);
+	public JuliaSet(double zoom, Random random) {
+		this.zoom = zoom;
+		r = random;
+		cX = -0.7 * (r.nextDouble() - 0.5);
+		cY = 0.27015 * (r.nextDouble() - 0.5);
 	}
 
-	public void drawJuliaSet(Graphics g,int w,int h) {
+	public void drawJuliaSet(Graphics g, int w, int h) {
 		Graphics2D g2 = (Graphics2D) g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		
+
 		BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
 
-		
+		cX = -0.7;
+		cY = 0.27015;
 		double moveX = 0, moveY = 0;
 		double zx, zy;
 
@@ -45,10 +46,7 @@ public class JuliaSet {
 				image.setRGB(x, y, c);
 			}
 		}
-		g2.drawImage(image, 0, 0, null);
-		g2.setColor(Color.black);
-		g2.drawString(String.format("cX: %f, cY: %f",cX,cY), 0, h+10);
+		g.drawImage(image, 0, 0, null);
 	}
 
-	
 }

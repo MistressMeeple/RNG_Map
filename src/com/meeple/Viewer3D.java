@@ -110,20 +110,7 @@ public class Viewer3D extends javax.swing.JFrame {
 		pack();
 	}
 
-	Point3d getPoint(VPoint3D p, FractalLandscape landscape) {
-		double x = p.x;
-		double y = p.y;
-		double z = p.z;
-
-		//move it half backwards
-		x = x - (0.5 * landscape.getWidth());
-		y = y - (0.5 * landscape.getHeight());
-		//put the values between 0 and 1			
-		x = x / landscape.getWidth();
-		y = y / landscape.getHeight();
-		z = z / ((landscape.getWidth() + landscape.getHeight()) / 2);
-		return new Point3d(x, z, y);
-	}
+	
 
 	BranchGroup register(FractalLandscape landscape) throws IOException {
 		SquareList list = landscape.getSquareList();
@@ -164,10 +151,7 @@ public class Viewer3D extends javax.swing.JFrame {
 		//add the vertices to the face, which in turn gets added to the square. which is then added as a new child of allSquares
 		for (Square s : list.squares) {
 
-			face.setCoordinate(0 + i, getPoint(s.getP1(), landscape));
-			face.setCoordinate(1 + i, getPoint(s.getP2(), landscape));
-			face.setCoordinate(2 + i, getPoint(s.getP3(), landscape));
-			face.setCoordinate(3 + i, getPoint(s.getP4(), landscape));
+			
 
 			i += vertexCount;
 

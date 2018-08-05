@@ -33,7 +33,7 @@ public class Landmass {
 		this.random = random;
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				landmass[x][y] = new FractalLandscape(landscapeSize * x, landscapeSize * y, landscapeSize, landscapeSize, random, 4);
+				//landmass[x][y] = new FractalLandscape(landscapeSize * x, landscapeSize * y, landscapeSize, landscapeSize, random, 4);
 			}
 		}
 	}
@@ -57,7 +57,7 @@ public class Landmass {
 		
 		for (int x = 0 - chunkLoadRadius; x < startX + chunkLoadRadius; x++) {
 			for (int y = 0 - chunkLoadRadius; y < startY + chunkLoadRadius; y++) {
-				ret[x + chunkLoadRadius][y+ chunkLoadRadius] = new FractalLandscape(10,10,random);
+				//ret[x + chunkLoadRadius][y+ chunkLoadRadius] = new FractalLandscape(10,10,random);
 			}
 		}
 		return ret;

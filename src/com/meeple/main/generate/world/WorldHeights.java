@@ -20,23 +20,26 @@ public class WorldHeights {
 	public static Map<ValueRange, Color> heightColor = new HashMap<ValueRange, Color>();
 
 	static {
-		Treetops.println("Setting up things in the WorldHeight class");
-		//-
-		//setup levels for heightmap detection
-		//-
-		deepSeaLevel = ValueRange.of(-20, 0);
-		seaLevel = ValueRange.of(0, 0 + 20);
-		shoreLevel = ValueRange.of(seaLevel.getMaximum(), seaLevel.getMaximum() + 5);
-		grassLevel = ValueRange.of(shoreLevel.getMaximum(), shoreLevel.getMaximum() + 10);
-		mountainLevel = ValueRange.of(grassLevel.getMaximum(), grassLevel.getMaximum() + 27);
-		//we dont use max for this so the actual generation isnt affected
-		snowCapLevel = ValueRange.of(mountainLevel.getMaximum(), mountainLevel.getMaximum() + 10);
-
+		create(100);
 		heightColor.put(seaLevel, Color.cyan);
 		heightColor.put(shoreLevel, Color.yellow.darker());
 		heightColor.put(grassLevel, Color.green.darker());
 		heightColor.put(mountainLevel, Color.gray);
 		heightColor.put(snowCapLevel, Color.white);
+	}
+
+	public static void create(double scale) {
+		Treetops.println("Setting up things in the WorldHeight class");
+		//-
+		//setup levels for heightmap detection
+		//-
+		deepSeaLevel = ValueRange.of((long) (-1 * scale), 0);
+		seaLevel = ValueRange.of(0, (long) (0.1 * scale));
+		shoreLevel = ValueRange.of(seaLevel.getMaximum(), seaLevel.getMaximum() + (long) (0.1 * scale));
+		grassLevel = ValueRange.of(shoreLevel.getMaximum(), shoreLevel.getMaximum() + (long) (0.1 * scale));
+		mountainLevel = ValueRange.of(grassLevel.getMaximum(), grassLevel.getMaximum() + (long) (0.1 * scale));
+		//we dont use max for this so the actual generation isnt affected
+		snowCapLevel = ValueRange.of(mountainLevel.getMaximum(), mountainLevel.getMaximum() + (long) (1 * scale));
 
 	}
 
@@ -66,15 +69,18 @@ public class WorldHeights {
 
 	public static double getRandomWeightedTowards(ValueRange weight, Random random) {
 		MathHelper.RandomCollection<ValueRange> a = new RandomCollection<ValueRange>(random);
-		a.add(1, seaLevel).add(1, shoreLevel).add(1, grassLevel).add(1, mountainLevel).add(1, snowCapLevel).add(4, weight);
+		a.add(1, deepSeaLevel);
+		a.add(1, seaLevel);
+		a.add(1, shoreLevel);
+		a.add(1, grassLevel);
+		a.add(1, mountainLevel);
+		a.add(.1, snowCapLevel);
+		a.add(1, weight);
 		ValueRange ran = a.next();
-		double mid = MathHelper.average(ran.getMinimum(), ran.getMaximum());
-		double gen = MathHelper.getRandomDoubleBetween(random, getEntireWorldHeight());
-		if (gen <= mid) {
-			gen += (MathHelper.average(mid, gen));
-		} else if (gen > mid) {
-			gen -= (MathHelper.average(mid, gen));
-		}
+//		double mid = MathHelper.average(ran.getMinimum(), ran.getMaximum());
+		double gen = MathHelper.getRandomDoubleBetween(random, ran);
+		
+
 		return gen;
 
 	}

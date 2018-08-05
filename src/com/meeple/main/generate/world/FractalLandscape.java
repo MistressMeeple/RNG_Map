@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Random;
 
 import com.meeple.Treetops;
@@ -16,33 +15,32 @@ import com.meeple.main.generate.fractal.SquareList.Square;
 
 public class FractalLandscape {
 
-	double startX, startY;
-	double width, height;
-	Random random;
-	int iterations;
-	double maxHeight = 100;
-	double heightReduc = 2;
-
+	double maxHeight;
+	double heightReduc;
+	String seed;
+	int subDivides;
+	VPoint3D p1, p2, p3, p4;
 	SquareList squareList;// = new SquareList();
 
-	
-	
-	public FractalLandscape(double startX, double startY, double width, double height, Random random, int iterations) {
-		this.startX = startX;
-		this.startY = startY;
-		this.width = width;
-		this.height = height;
-		this.random = random;
-		this.iterations = iterations;
+	public FractalLandscape(VPoint3D pointA, VPoint3D pointB, VPoint3D pointC, VPoint3D pointD, String seed, int iterations, double maxHeight, double heightReduc) {
+		this.p1 = pointA;
+		this.p2 = pointB;
+		this.p3 = pointC;
+		this.p4 = pointD;
+		this.maxHeight = maxHeight;
+		this.heightReduc = heightReduc;
+		this.seed = seed;
+		this.subDivides = iterations;
 		generate();
 	}
 
-	public FractalLandscape(double width, double height, Random random, int iterations) {
-		this(0, 0, width, height, random, iterations);
-	}
+	void generate() {
+		squareList = new SquareList();
+		squareList.addSquare(p1, p2, p3, p4);
 
-	public FractalLandscape(double width, double height, Random random) {
-		this(0, 0, width, height, random, 50);
+		for (int itt = 0; itt < this.subDivides; itt++) {
+			squareList = subdivide(squareList);
+		}
 	}
 
 	/**
@@ -63,11 +61,11 @@ public class FractalLandscape {
 			VPoint3D d = VPoint3D.midpoint(p4, p1);
 			VPoint3D e = new VPoint3D((p1.x + p2.x + p3.x + p4.x) / 4, (p1.y + p2.y + p3.y + p4.y) / 4, (p1.z + p2.z + p3.z + p4.z) / 4);
 			//add random height
-			a = a.add(0, 0, MathHelper.getRandomDoubleBetween(random, 0, maxHeight));
-			b = b.add(0, 0, MathHelper.getRandomDoubleBetween(random, 0, maxHeight));
-			c = c.add(0, 0, MathHelper.getRandomDoubleBetween(random, 0, maxHeight));
-			d = d.add(0, 0, MathHelper.getRandomDoubleBetween(random, 0, maxHeight));
-			e = e.add(0, 0, MathHelper.getRandomDoubleBetween(random, 0, maxHeight));
+			a = new VPoint3D(a.x, a.y, a.z + getPointAt(new VPoint2D(a.x, a.y)));
+			b = new VPoint3D(b.x, b.y, b.z + getPointAt(new VPoint2D(b.x, b.y)));
+			c = new VPoint3D(c.x, c.y, c.z + getPointAt(new VPoint2D(c.x, c.y)));
+			d = new VPoint3D(d.x, d.y, d.z + getPointAt(new VPoint2D(d.x, d.y)));
+			e = new VPoint3D(e.x, e.y, e.z + getPointAt(new VPoint2D(e.x, e.y)));
 
 			ret.addSquare(p1, a, e, d);
 			ret.addSquare(a, p2, b, e);
@@ -79,70 +77,42 @@ public class FractalLandscape {
 		return ret;
 	}
 
-	double[][] circleHeightMap() {
-		int w = (int) (width + 1), h = (int) (height + 1);
-		double[][] ret = new double[w][h];
-		for (int x = 0; x < w; x++) {
-			for (int y = 0; y < h; y++) {
+	private double getPointAt(VPoint2D p) {
+		int rad = 3;
+		int size = ((rad * rad) + 1) * ((rad * rad) + 1);
+		double[] avg = new double[size];
+		int index = 0;
 
-				double dist = (new VPoint2D(x, y).distanceTo(new VPoint2D(w / 2, h / 2)));
-				//finds the distance between xy and mid. divides by max dist. mults by -1 then adds 1
-				double mths = ((((dist + (((w + h) / 2) / 50)) / (MathHelper.pythag(0, w / 2, 0, h / 2))) * -1) + 1);
+		for (int x = -rad; x < rad; x++) {
+			for (int y = -rad; y < rad; y++) {
+				avg[index] = WorldHeights.getRandomWeightedTowards(WorldHeights.grassLevel, new Random(seedFromLocation(p.add(x * 10, y * 10)).hashCode()));
+				index += 1;
+			}
+		}
 
-				if (dist < ((w + h) / 2) / 2) {
-					ret[x][y] = (mths * 1.5);
-				} else {
-					ret[x][y] /= 2;
+		return MathHelper.average(avg);
+	}
+
+	private String seedFromLocation(VPoint2D a) {
+		return (seed + (a.x + "" + a.y));
+	}
+
+	public double getHeightAt(VPoint2D point) {
+		return squareList.hashmap.get(point);
+	}
+
+	//TODO
+	public void smooth(double scale) {
+		/*for (VPoint3D point : squareList.pointList) {
+			double average = 0;
+			for (int x = -1; x < 1; x++) {
+				for (int y = -1; y < 1; y++) {
+					average += WorldHeights.getRandomWeightedTowards(WorldHeights.grassLevel, new Random(seedFromLocation(point.add(x * scale, y * scale, 0)).hashCode()));
 				}
 			}
-		}
-		return ret;
-	}
-
-	public void generate() {
-		squareList = new SquareList();
-		squareList.addSquare(new VPoint3D(startX, startY, 0), new VPoint3D(width + startX, startY, 0), new VPoint3D(width + startX, height + startY, 0), new VPoint3D(startX, height + startY, 0));
-		//repeat for how many itterations we have
-		for (int itt = 0; itt < iterations; itt++) {
-			squareList = subdivide(squareList);
-		}
-
-	}
-
-	public void combineWithCircle() {
-		double[][] arr = circleHeightMap();
-		for (VPoint3D point : squareList.pointList) {
-			point.z = point.z * arr[(int) point.x][(int) point.y];
-		}
-	}
-
-	public void smooth() {
-		ArrayList<VPoint3D> tempList = new ArrayList<VPoint3D>(squareList.pointList);
-		//readonly
-		double[][] heightMap = new double[(int) (width + 1)][(int) (height + 1)];
-		for (VPoint3D p : tempList) {
-			heightMap[(int) p.x][(int) p.y] = p.z;
-		}
-		//writable
-		double[][] tempArr = new double[(int) (width + 1)][(int) (height + 1)];
-		for (int x = 1; x < width; x++) {
-			for (int y = 1; y < height; y++) {
-				double averageHeight = MathHelper.average(/*heightMap[x-1][y-1],*/ heightMap[x][y - 1], /*heightMap[x + 1][y-1],*/
-						heightMap[x - 1][y], heightMap[x][y], heightMap[x + 1][y], /*heightMap[x-1][y + 1],*/ heightMap[x][y + 1]/*,		heightMap[x + 1][y + 1]*/);
-				tempArr[x - 1][y - 1] = averageHeight;
-				tempArr[x - 1][y] = averageHeight;
-				tempArr[x - 1][y + 1] = averageHeight;
-				tempArr[x][y + 1] = averageHeight;
-				tempArr[x][y] = averageHeight;
-				tempArr[x][y - 1] = averageHeight;
-				tempArr[x + 1][y - 1] = averageHeight;
-				tempArr[x + 1][y] = averageHeight;
-				tempArr[x + 1][y + 1] = averageHeight;
-			}
-		}
-		for (VPoint3D p : tempList) {
-			p.z = heightMap[(int) p.x][(int) p.y];
-		}
+			average = average / 9;
+			point.z =average;
+		}*/
 	}
 
 	public void print() {
@@ -172,32 +142,36 @@ public class FractalLandscape {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
 			bw.write("o poly" + System.lineSeparator());
 
-			//Write all the vertices
-			for (VPoint3D point : squareList.pointList) {
-				String text = String.format("v %.6f %.6f %.6f", point.x, point.z, point.y) + System.lineSeparator();
-				bw.write(text);
-			}
-			//Write the vertex normal
-			bw.write("vn 0.0000 1.0000 0.0000" + System.lineSeparator());
-
-			//write all the faces
-			for (int i = 0; i < squareList.squares.size(); i++) {
-				Square square = squareList.squares.get(i);
-
-				bw.write(String.format("f %d %d %d %d %n", square.p1 + 1, square.p2 + 1, square.p3 + 1, square.p4 + 1));
-			}
+			bw.write(writeVerticesAndFaces(0));
 			bw.close();
 			Treetops.println("finished printing");
-		} catch (
-
-		IOException e) {
+		} catch (IOException e) {
 
 		}
 
 	}
 
+	public String writeVerticesAndFaces(int offset) {
+		String ret = "";
+		//Write all the vertices
+		for (VPoint3D point : squareList.pointList) {
+			ret += (String.format("v %.6f %.6f %.6f", point.x, point.z, point.y) + System.lineSeparator());
+
+		}
+		//Write the vertex normal
+		ret.concat("vn 0.0000 1.0000 0.0000" + System.lineSeparator());
+
+		//write all the faces
+		for (int i = 0; i < squareList.squares.size(); i++) {
+			Square square = squareList.squares.get(i);
+
+			ret += (String.format("f %d %d %d %d %n", square.p1 + 1 + offset, square.p2 + 1 + offset, square.p3 + 1 + offset, square.p4 + 1 + offset));
+		}
+		return ret;
+	}
+
 	/**
-	 * @return the squareList
+	 * @return SquareList
 	 */
 	public SquareList getSquareList() {
 		return squareList;
@@ -210,32 +184,12 @@ public class FractalLandscape {
 		this.squareList = squareList;
 	}
 
-	/**
-	 * @return the width
-	 */
-	public double getWidth() {
-		return width;
+	public void setSubDivisions(int subDivides) {
+		this.subDivides = subDivides;
+		generate();
 	}
 
-	/**
-	 * @param width the width to set
-	 */
-	public void setWidth(double width) {
-		this.width = width;
+	public int getSubDivisions() {
+		return subDivides;
 	}
-
-	/**
-	 * @return the height
-	 */
-	public double getHeight() {
-		return height;
-	}
-
-	/**
-	 * @param height the height to set
-	 */
-	public void setHeight(double height) {
-		this.height = height;
-	}
-
 }

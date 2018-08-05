@@ -132,10 +132,4 @@ public class SquareList implements Cloneable {
 		return clone;
 	}
 
-	public void addSquares(ArrayList<Square> squares) {
-		for (Square s : squares) {
-			addSquare(s);
-		}
-
-	}
 }
