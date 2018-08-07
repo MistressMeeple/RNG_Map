@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 
 import com.meeple.Treetops;
+import com.meeple.lib.math.MathHelper;
 import com.meeple.lib.math.VPoint2D;
 import com.meeple.lib.math.VPoint3D;
 import com.meeple.main.generate.world.FractalLandscape;
@@ -71,37 +72,47 @@ public class WorldGenerator {
 		if (!chunkCornerHeightMap.containsKey(point)) {
 			double height = WorldHeights.getRandomWeightedTowards(WorldHeights.snowCapLevel, new Random(seedFromLocation(point).hashCode()));
 			height = new Random(seedFromLocation(point).hashCode()).nextDouble() * WorldHeights.getEntireWorldHeight().getMaximum();
-			int rad = 3;
+			int rad = 1;
 			int size = ((rad * rad) + 1) * ((rad * rad) + 1);
-			double[] avg = new double[size];
+			double[] avg = new double[size - 1];
 			int index = 0;
 
 			for (int x = -rad; x < rad; x++) {
 				for (int y = -rad; y < rad; y++) {
-					avg[index] = new Random(seedFromLocation(point).hashCode()).nextDouble() * WorldHeights.getEntireWorldHeight().getMaximum();
-					index += 1;
+					if (x != 0 && y != 0) {
+						avg[index] = new Random(seedFromLocation(point.add(x * scale, y * scale)).hashCode()).nextDouble() * WorldHeights.getEntireWorldHeight().getMaximum();
+						index += 1;
+					}
 				}
 			}
-			//			height = MathHelper.average(avg);
+			height = height - MathHelper.average(avg);
 			chunkCornerHeightMap.put(point, height);
 		}
 		return chunkCornerHeightMap.get(point);
 	}
 
 	public void print() {
+		print("out/wgPoints.obj");
+	}
+	public void print(String fname) {
 		Treetops.println("Starting print for Fractal Landscape");
 		try {
 
-			File f = new File("out/wgPoints.obj");
+			File f = new File(fname);
 			if (!f.exists()) {
 				f.createNewFile();
 			}
 
 			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
 			int verticesWritten = 0;
+			//			bw.write("o all");
 			for (Entry<VPoint2D, FractalLandscape> entry : chunkMap.entrySet()) {
 				bw.write("o chunk_" + entry.getKey().x + "_" + entry.getKey().y + System.lineSeparator());
-				bw.write(entry.getValue().writeVerticesAndFaces(verticesWritten));
+				bw.write(entry.getValue().writeVertices());
+
+				//				bw.write("s 1");
+
+				bw.write(entry.getValue().writeFaces(verticesWritten));
 				verticesWritten += entry.getValue().getSquareList().pointList.size();
 			}
 
